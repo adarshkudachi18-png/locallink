@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Support both Railway and standard environment variables
+DB_HOST="${MYSQLHOST:-${DB_HOST:-localhost}}"
+DB_USER="${MYSQLUSER:-${DB_USER:-root}}"
+DB_PASS="${MYSQLPASSWORD:-${DB_PASS:-}}"
+DB_NAME="${MYSQL_DATABASE:-${DB_NAME:-railway}}"
+
+echo "Using MySQL host: $DB_HOST"
+echo "Using database: $DB_NAME"
+
 # Wait for MySQL to be ready
 echo "Waiting for MySQL to be ready..."
 while ! mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "SELECT 1" > /dev/null 2>&1; do

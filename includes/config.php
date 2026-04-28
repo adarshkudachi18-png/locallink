@@ -1,11 +1,11 @@
 <?php
 session_start();
 
-// Database Configuration - Use environment variables or update these values
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_NAME', getenv('DB_NAME') ?: 'locallink');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
+// Database Configuration - Support both standard and Railway env vars
+define('DB_HOST', getenv('MYSQLHOST') ?: getenv('DB_HOST') ?: 'localhost');
+define('DB_NAME', getenv('MYSQL_DATABASE') ?: getenv('DB_NAME') ?: 'railway');
+define('DB_USER', getenv('MYSQLUSER') ?: getenv('DB_USER') ?: 'root');
+define('DB_PASS', getenv('MYSQLPASSWORD') ?: getenv('DB_PASS') ?: '');
 
 define('SITE_URL', getenv('SITE_URL') ?: 'http://localhost');
 define('SITE_NAME', 'Local Link');
