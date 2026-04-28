@@ -37,8 +37,12 @@ if [ $ATTEMPTS -eq $MAX_ATTEMPTS ]; then
     echo "Continuing anyway..."
 fi
 
-# Force reimport of database schema to ensure all tables exist
-echo "Importing database schema (forcing reimport)..."
+# Drop existing tables to ensure clean schema import
+echo "Dropping existing tables..."
+mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SET FOREIGN_KEY_CHECKS=0; DROP TABLE IF EXISTS orders, order_items, cart, products, categories, admins, users, testimonials, tickets, messages, faqs, settings; SET FOREIGN_KEY_CHECKS=1;" 2>&1
+
+# Import database schema
+echo "Importing database schema..."
 mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < /var/www/html/database.sql 2>&1
 echo "Database schema import completed!"
 

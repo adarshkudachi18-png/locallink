@@ -1,8 +1,6 @@
 -- Local Link - Database Schema
 -- Run this in phpMyAdmin or MySQL CLI
-
-CREATE DATABASE IF NOT EXISTS ybt_digital;
-USE ybt_digital;
+-- Database name is set by environment (DB_NAME or MYSQL_DATABASE)
 
 -- Users table
 CREATE TABLE users (
