@@ -52,7 +52,7 @@ CREATE TABLE products (
     discount_price DECIMAL(10,2) DEFAULT NULL,
     category_id INT,
     thumbnail VARCHAR(255),
-    file_path VARCHAR(255) NOT NULL,
+    file_path VARCHAR(255) DEFAULT NULL,
     file_size VARCHAR(50),
     location VARCHAR(255) DEFAULT NULL,
     version VARCHAR(50) DEFAULT '1.0',

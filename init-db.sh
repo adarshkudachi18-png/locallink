@@ -65,6 +65,10 @@ else
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
     " 2>&1
+    # Make file_path nullable in products table
+    mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "
+    ALTER TABLE products MODIFY COLUMN file_path VARCHAR(255) DEFAULT NULL;
+    " 2>&1
 fi
 
 # Verify tables were created
