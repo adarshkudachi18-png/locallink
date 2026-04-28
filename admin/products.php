@@ -13,10 +13,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $price = floatval($_POST['price'] ?? 0);
     $discount_price = $_POST['discount_price'] ? floatval($_POST['discount_price']) : null;
     $category_id = intval($_POST['category_id'] ?? 0) ?: null;
-    $status = $_POST['status'] ?? 'active';
-    $featured = intval($_POST['featured'] ?? 0);
-    $version = trim($_POST['version'] ?? '1.0');
-    $file_size = trim($_POST['file_size'] ?? '');
+    $status = 'active'; // Default status
+    $featured = 0; // Default not featured
+    $version = '1.0'; // Default version
+    $file_size = ''; // Default empty
     $location = trim($_POST['location'] ?? '');
 
     if (!$title || !$price) {
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $thumbnail = null;
         $filePath = null;
 
-        // Handle thumbnail upload
+        // Handle thumbnail upload (required)
         if (!empty($_FILES['thumbnail']['name'])) {
             $ext = strtolower(pathinfo($_FILES['thumbnail']['name'], PATHINFO_EXTENSION));
             $allowed = ['jpg','jpeg','png','gif','webp'];
@@ -34,24 +34,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $thumbnail = uniqid() . '.' . $ext;
                 move_uploaded_file($_FILES['thumbnail']['tmp_name'], PRODUCT_PATH . $thumbnail);
             } else {
-                $error = 'Invalid thumbnail format.';
+                $error = 'Invalid image format. Only jpg, jpeg, png, gif, webp allowed.';
             }
-        }
-
-        // Handle digital file upload
-        if (!empty($_FILES['digital_file']['name'])) {
-            $ext = strtolower(pathinfo($_FILES['digital_file']['name'], PATHINFO_EXTENSION));
-            $filePath = uniqid() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $_FILES['digital_file']['name']);
-            move_uploaded_file($_FILES['digital_file']['tmp_name'], DOWNLOAD_PATH . $filePath);
         }
 
         if (!$error) {
             if ($action === 'create' || ($action === 'edit' && !$id)) {
-                if (!$filePath) {
-                    $error = 'Digital file is required for new products.';
+                // For new products, thumbnail is required
+                if (!$thumbnail && $action === 'create') {
+                    $error = 'Product image is required.';
                 } else {
-                    $stmt = $pdo->prepare("INSERT INTO products (title, slug, description, price, discount_price, category_id, thumbnail, file_path, file_size, location, version, status, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    $stmt->execute([$title, $slug, $description, $price, $discount_price, $category_id, $thumbnail, $filePath, $file_size, $location, $version, $status, $featured]);
+                    $stmt = $pdo->prepare("INSERT INTO products (title, slug, description, price, discount_price, category_id, thumbnail, file_path, file_size, location, version, status, featured) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?)");
+                    $stmt->execute([$title, $slug, $description, $price, $discount_price, $category_id, $thumbnail, $file_size, $location, $version, $status, $featured]);
                     $newId = $pdo->lastInsertId();
 
                     // Handle screenshots
@@ -77,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!$existing) { $error = 'Product not found.'; }
                 else {
                     $thumbnail = $thumbnail ?: $existing['thumbnail'];
-                    $filePath = $filePath ?: $existing['file_path'];
 
                     // Ensure slug uniqueness
                     $slugCount = 0;
@@ -86,8 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $slugCount = $stmt2->fetchColumn();
                     if ($slugCount > 0) $slug .= '-' . $id;
 
-                    $stmt = $pdo->prepare("UPDATE products SET title=?, slug=?, description=?, price=?, discount_price=?, category_id=?, thumbnail=?, file_path=?, file_size=?, location=?, version=?, status=?, featured=? WHERE id=?");
-                    $stmt->execute([$title, $slug, $description, $price, $discount_price, $category_id, $thumbnail, $filePath, $file_size, $location, $version, $status, $featured, $id]);
+                    $stmt = $pdo->prepare("UPDATE products SET title=?, slug=?, description=?, price=?, discount_price=?, category_id=?, thumbnail=?, file_size=?, location=?, version=?, status=?, featured=? WHERE id=?");
+                    $stmt->execute([$title, $slug, $description, $price, $discount_price, $category_id, $thumbnail, $file_size, $location, $version, $status, $featured, $id]);
 
                     // Handle new screenshots
                     if (!empty($_FILES['screenshots']['name'][0])) {
@@ -262,14 +255,6 @@ include 'includes/header.php';
                 <input type="number" name="discount_price" class="form-control" step="0.01" min="0" value="<?= $editProduct['discount_price'] ?? '' ?>">
             </div>
             <div class="col-md-4">
-                <label class="form-label">Version</label>
-                <input type="text" name="version" class="form-control" value="<?= htmlspecialchars($editProduct['version'] ?? '1.0') ?>">
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">File Size</label>
-                <input type="text" name="file_size" class="form-control" placeholder="e.g. 25 MB" value="<?= htmlspecialchars($editProduct['file_size'] ?? '') ?>">
-            </div>
-            <div class="col-md-4">
                 <label class="form-label">Location</label>
                 <div class="input-group">
                     <input type="text" name="location" id="locationInput" class="form-control" placeholder="e.g. Mumbai, India" value="<?= htmlspecialchars($editProduct['location'] ?? '') ?>">
@@ -278,36 +263,15 @@ include 'includes/header.php';
                     </button>
                 </div>
             </div>
-            <div class="col-md-4">
-                <label class="form-label">Status</label>
-                <select name="status" class="form-select">
-                    <option value="active" <?= ($editProduct['status'] ?? 'active') === 'active' ? 'selected' : '' ?>>Active</option>
-                    <option value="inactive" <?= ($editProduct['status'] ?? '') === 'inactive' ? 'selected' : '' ?>>Inactive</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Featured</label>
-                <select name="featured" class="form-select">
-                    <option value="0" <?= ($editProduct['featured'] ?? 0) == 0 ? 'selected' : '' ?>>No</option>
-                    <option value="1" <?= ($editProduct['featured'] ?? 0) == 1 ? 'selected' : '' ?>>Yes</option>
-                </select>
-            </div>
 
             <div class="col-md-6">
-                <label class="form-label">Thumbnail Image</label>
+                <label class="form-label">Product Image *</label>
                 <?php if ($editProduct['thumbnail'] ?? ''): ?>
                     <div style="margin-bottom:8px;">
                         <img src="<?= SITE_URL ?>/assets/img/products/<?= $editProduct['thumbnail'] ?>" style="width:80px;height:60px;object-fit:cover;border-radius:6px;">
                     </div>
                 <?php endif; ?>
-                <input type="file" name="thumbnail" class="form-control" accept="image/*">
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Digital File <?= $action === 'create' ? '*' : '' ?></label>
-                <?php if ($editProduct['file_path'] ?? ''): ?>
-                    <div style="margin-bottom:8px;font-size:0.85rem;color:var(--text-muted);">Current: <?= htmlspecialchars($editProduct['file_path']) ?></div>
-                <?php endif; ?>
-                <input type="file" name="digital_file" class="form-control" <?= $action === 'create' ? 'required' : '' ?>>
+                <input type="file" name="thumbnail" class="form-control" accept="image/*" <?= $action === 'create' ? 'required' : '' ?>>
             </div>
             <div class="col-12">
                 <label class="form-label">Screenshots (multiple)</label>

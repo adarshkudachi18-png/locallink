@@ -2,6 +2,24 @@
 require_once 'includes/config.php';
 requireLogin();
 
+// Handle order cancellation
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
+    $orderId = intval($_POST['order_id'] ?? 0);
+    $stmt = $pdo->prepare("SELECT * FROM orders WHERE id = ? AND user_id = ? AND status = 'pending'");
+    $stmt->execute([$orderId, $_SESSION['user_id']]);
+    $order = $stmt->fetch();
+    
+    if ($order) {
+        $stmt = $pdo->prepare("UPDATE orders SET status = 'cancelled', delivery_status = 'cancelled' WHERE id = ?");
+        $stmt->execute([$orderId]);
+        flash('order_success', "Order #{$order['order_number']} has been cancelled successfully.");
+    } else {
+        flash('order_error', "Order cannot be cancelled.");
+    }
+    header('Location: ' . SITE_URL . '/orders.php');
+    exit;
+}
+
 $newOrder = $_GET['order'] ?? '';
 if ($newOrder) {
     flash('order_success', "Order {$newOrder} placed successfully!");
@@ -80,6 +98,17 @@ include 'includes/header.php';
                 <?php if ($order['payment_method'] === 'cod' && $order['payment_status'] === 'pending'): ?>
                 <div class="alert alert-info mt-2 mb-0" style="font-size:0.8rem;padding:8px 12px;">
                     <i class="bi bi-info-circle me-1"></i> Cash on Delivery. Please keep <?= formatPrice($order['total']) ?> ready.
+                </div>
+                <?php endif; ?>
+                
+                <?php if ($order['status'] === 'pending'): ?>
+                <div class="mt-2 pt-2" style="border-top:1px solid var(--border-light);">
+                    <form method="POST" action="" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                        <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
+                        <button type="submit" name="cancel_order" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-x-circle me-1"></i>Cancel Order
+                        </button>
+                    </form>
                 </div>
                 <?php endif; ?>
             </div>
