@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['razorpay_payment_id'
             // For Razorpay, continue to show Razorpay checkout
         } catch (Exception $e) {
             $pdo->rollBack();
-            $error = 'Failed to create order. Please try again.';
+            $error = 'Failed to create order: ' . $e->getMessage();
         }
     }
 }
