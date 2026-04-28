@@ -171,6 +171,13 @@ function requireLogin() {
     }
 }
 
+function requireAdminLogin() {
+    if (!isAdminLoggedIn()) {
+        header('Location: ' . SITE_URL . '/admin/login.php');
+        exit;
+    }
+}
+
 function csrf_token() {
     if (!isset($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
