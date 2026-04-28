@@ -244,3 +244,13 @@ function getDeliveryStatusBadge($status) {
     ];
     return $badges[$status] ?? '<span class="badge bg-secondary">' . ucfirst($status) . '</span>';
 }
+
+function getCartCount() {
+    global $pdo;
+    if (!isLoggedIn()) {
+        return 0;
+    }
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM cart WHERE user_id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    return $stmt->fetchColumn();
+}
