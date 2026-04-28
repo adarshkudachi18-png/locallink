@@ -1,7 +1,7 @@
 FROM php:8.1-apache
 
-# Install MySQL extension
-RUN docker-php-ext-install mysqli pdo_mysql
+# Install MySQL extension and mysql client
+RUN docker-php-ext-install mysqli pdo_mysql && apt-get update && apt-get install -y default-mysql-client && rm -rf /var/lib/apt/lists/*
 
 # Disable ALL MPM modules first, then enable only prefork
 RUN a2dismod mpm_event mpm_worker mpm_prefork && a2enmod mpm_prefork
@@ -12,11 +12,18 @@ RUN a2enmod rewrite
 # Copy files
 COPY . /var/www/html/
 
+# Make init script executable
+RUN chmod +x /var/www/html/init-db.sh
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/
 RUN chmod -R 755 /var/www/html/
 
 # Set Apache document root
 RUN sed -i 's|/var/www/html|/var/www/html|g' /etc/apache2/sites-available/000-default.conf
+
+# Run database initialization script before starting Apache
+ENTRYPOINT ["/var/www/html/init-db.sh"]
+CMD ["apache2-foreground"]
 
 EXPOSE 80
