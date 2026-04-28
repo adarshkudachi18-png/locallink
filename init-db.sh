@@ -47,6 +47,12 @@ if [ "$TABLE_COUNT" -eq 0 ]; then
     echo "Import result: $IMPORT_RESULT"
 else
     echo "Database already has $TABLE_COUNT tables. Skipping schema import to preserve data."
+    # Add missing columns if they don't exist
+    echo "Checking for missing columns..."
+    mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_mobile VARCHAR(20) DEFAULT NULL;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_status ENUM('pending','shipped','delivered','cancelled') DEFAULT 'pending';
+    " 2>&1
 fi
 
 # Verify tables were created

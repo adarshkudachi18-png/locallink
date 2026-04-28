@@ -97,6 +97,8 @@ CREATE TABLE orders (
     payment_status ENUM('pending','completed','failed','refunded') DEFAULT 'pending',
     transaction_id VARCHAR(255) DEFAULT NULL,
     status ENUM('pending','completed','failed','refunded') DEFAULT 'pending',
+    customer_mobile VARCHAR(20) DEFAULT NULL,
+    delivery_status ENUM('pending','shipped','delivered','cancelled') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
