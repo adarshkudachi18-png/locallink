@@ -89,9 +89,6 @@ include 'includes/header.php';
                         </div>
 
                         <div class="product-meta">
-                            <div class="product-meta-item"><i class="bi bi-download"></i> <?= $product['downloads'] ?> Downloads</div>
-                            <div class="product-meta-item"><i class="bi bi-file-earmark"></i> <?= htmlspecialchars($product['file_size'] ?: 'N/A') ?></div>
-                            <div class="product-meta-item"><i class="bi bi-code-slash"></i> v<?= htmlspecialchars($product['version']) ?></div>
                             <?php if ($product['location']): ?>
                             <div class="product-meta-item"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($product['location']) ?></div>
                             <?php endif; ?>
