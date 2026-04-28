@@ -1,0 +1,87 @@
+/* Admin-specific overrides */
+.admin-content .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.admin-content .page-header h4 {
+    font-weight: 800;
+    margin: 0;
+}
+
+/* Admin form card */
+.admin-form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+}
+
+/* File upload area */
+.file-upload-area {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-md);
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--bg-input);
+}
+.file-upload-area:hover {
+    border-color: var(--primary);
+    background: rgba(108,92,231,0.04);
+}
+.file-upload-area i {
+    font-size: 2rem;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+.file-upload-area p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.status-active { background: rgba(0,184,148,0.12); color: var(--success); }
+.status-inactive { background: rgba(178,190,195,0.2); color: var(--text-muted); }
+.status-pending { background: rgba(254,202,87,0.12); color: #e67e22; }
+.status-completed { background: rgba(0,184,148,0.12); color: var(--success); }
+.status-failed { background: rgba(255,107,107,0.12); color: var(--danger); }
+.status-open { background: rgba(108,92,231,0.12); color: var(--primary); }
+.status-resolved { background: rgba(0,184,148,0.12); color: var(--success); }
+.status-closed { background: rgba(178,190,195,0.2); color: var(--text-muted); }
+.status-in_progress { background: rgba(254,202,87,0.12); color: #e67e22; }
+
+/* Chart placeholder */
+.chart-placeholder {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Admin table actions */
+.table-actions {
+    display: flex;
+    gap: 6px;
+}
+.table-actions .btn {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+}

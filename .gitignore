@@ -1,0 +1,5 @@
+assets/downloads/
+.htaccess
+.DS_Store
+Thumbs.db
+*.log
