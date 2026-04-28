@@ -275,3 +275,38 @@ function getCartCount() {
     $stmt->execute([$_SESSION['user_id']]);
     return $stmt->fetchColumn();
 }
+
+function slugify($text) {
+    $text = preg_replace('~[^\pL\d]+~u', '-', $text);
+    $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+    $text = preg_replace('~[^-\w]+~', '', $text);
+    $text = trim($text, '-');
+    $text = preg_replace('~-+~', '-', $text);
+    $text = strtolower($text);
+    return empty($text) ? 'n-a' : $text;
+}
+
+function truncate($text, $length = 100, $suffix = '...') {
+    if (strlen($text) <= $length) {
+        return $text;
+    }
+    return substr($text, 0, $length) . $suffix;
+}
+
+function timeAgo($datetime) {
+    $time = strtotime($datetime);
+    $now = time();
+    $diff = $now - $time;
+    
+    if ($diff < 60) {
+        return 'Just now';
+    } elseif ($diff < 3600) {
+        return floor($diff / 60) . ' minutes ago';
+    } elseif ($diff < 86400) {
+        return floor($diff / 3600) . ' hours ago';
+    } elseif ($diff < 604800) {
+        return floor($diff / 86400) . ' days ago';
+    } else {
+        return date('M d, Y', $time);
+    }
+}
