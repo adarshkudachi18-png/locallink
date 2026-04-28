@@ -8,15 +8,34 @@ DB_NAME="${MYSQL_DATABASE:-${DB_NAME:-railway}}"
 
 echo "Using MySQL host: $DB_HOST"
 echo "Using database: $DB_NAME"
+echo "Using user: $DB_USER"
+
+# Test connection with visible errors
+echo "Testing MySQL connection..."
+mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "SELECT 1" 2>&1
+CONNECTION_RESULT=$?
 
 # Wait for MySQL to be ready
 echo "Waiting for MySQL to be ready..."
-while ! mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "SELECT 1" > /dev/null 2>&1; do
-    echo "MySQL is not ready yet. Waiting..."
+ATTEMPTS=0
+MAX_ATTEMPTS=30
+
+while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
+    if mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "SELECT 1" > /dev/null 2>&1; then
+        echo "MySQL is ready!"
+        break
+    fi
+    ATTEMPTS=$((ATTEMPTS + 1))
+    echo "MySQL is not ready yet. Attempt $ATTEMPTS/$MAX_ATTEMPTS. Waiting..."
     sleep 2
 done
 
-echo "MySQL is ready!"
+if [ $ATTEMPTS -eq $MAX_ATTEMPTS ]; then
+    echo "ERROR: Could not connect to MySQL after $MAX_ATTEMPTS attempts"
+    echo "Trying to show last error:"
+    mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "SELECT 1" 2>&1
+    echo "Continuing anyway..."
+fi
 
 # Check if database schema already exists
 if mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SHOW TABLES" | grep -q "users"; then
