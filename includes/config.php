@@ -21,6 +21,9 @@ if (getenv('SITE_URL')) {
 define('SITE_NAME', 'Local Link');
 // Get Brevo API Key from environment variable
 define('BREVO_API_KEY', getenv('BREVO_API_KEY') ?: '');
+// Get Razorpay credentials from environment variable
+define('RAZORPAY_KEY_ID', getenv('RAZORPAY_KEY_ID') ?: '');
+define('RAZORPAY_KEY_SECRET', getenv('RAZORPAY_KEY_SECRET') ?: '');
 define('UPLOAD_PATH', __DIR__ . '/../assets/img/uploads/');
 define('PRODUCT_PATH', __DIR__ . '/../assets/img/products/');
 define('SCREENSHOT_PATH', __DIR__ . '/../assets/img/screenshots/');

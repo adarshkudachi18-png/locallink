@@ -22,8 +22,8 @@ $taxPercent = floatval(getSetting('tax_percentage', '0'));
 $tax = $taxEnabled ? ($subtotal * $taxPercent / 100) : 0;
 $total = $subtotal + $tax;
 
-$razorpayKeyId = getSetting('razorpay_key_id', '');
-$razorpayKeySecret = getSetting('razorpay_key_secret', '');
+$razorpayKeyId = RAZORPAY_KEY_ID ?: getSetting('razorpay_key_id', '');
+$razorpayKeySecret = RAZORPAY_KEY_SECRET ?: getSetting('razorpay_key_secret', '');
 
 $error = '';
 $success = '';
