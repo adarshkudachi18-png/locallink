@@ -49,9 +49,21 @@ else
     echo "Database already has $TABLE_COUNT tables. Skipping schema import to preserve data."
     # Add missing columns if they don't exist
     echo "Checking for missing columns..."
+    # Check and add customer_mobile column
     mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "
-    ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_mobile VARCHAR(20) DEFAULT NULL;
-    ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_status ENUM('pending','shipped','delivered','cancelled') DEFAULT 'pending';
+    SET @col_exists = (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = '$DB_NAME' AND table_name = 'orders' AND column_name = 'customer_mobile');
+    SET @sql = IF(@col_exists = 0, 'ALTER TABLE orders ADD COLUMN customer_mobile VARCHAR(20) DEFAULT NULL', 'SELECT \"customer_mobile already exists\"');
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+    " 2>&1
+    # Check and add delivery_status column
+    mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "
+    SET @col_exists = (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = '$DB_NAME' AND table_name = 'orders' AND column_name = 'delivery_status');
+    SET @sql = IF(@col_exists = 0, 'ALTER TABLE orders ADD COLUMN delivery_status ENUM(\"pending\",\"shipped\",\"delivered\",\"cancelled\") DEFAULT \"pending\"', 'SELECT \"delivery_status already exists\"');
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
     " 2>&1
 fi
 
