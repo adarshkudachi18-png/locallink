@@ -37,14 +37,10 @@ if [ $ATTEMPTS -eq $MAX_ATTEMPTS ]; then
     echo "Continuing anyway..."
 fi
 
-# Check if database schema already exists (disable SSL for import)
-if mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SHOW TABLES" | grep -q "users"; then
-    echo "Database schema already exists. Skipping import."
-else
-    echo "Importing database schema..."
-    mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < /var/www/html/database.sql
-    echo "Database schema imported successfully!"
-fi
+# Force reimport of database schema to ensure all tables exist
+echo "Importing database schema (forcing reimport)..."
+mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < /var/www/html/database.sql 2>&1
+echo "Database schema import completed!"
 
 # Start the web server (apache2-foreground)
 echo "Starting web server..."
