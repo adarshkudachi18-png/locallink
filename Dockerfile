@@ -3,8 +3,10 @@ FROM php:8.1-apache
 # Install MySQL extension and mysql client
 RUN docker-php-ext-install mysqli pdo_mysql && apt-get update && apt-get install -y default-mysql-client && rm -rf /var/lib/apt/lists/*
 
-# Disable ALL MPM modules first, then enable only prefork
-RUN a2dismod mpm_event mpm_worker mpm_prefork && a2enmod mpm_prefork
+# Remove conflicting MPM modules to fix "More than one MPM loaded" error
+RUN rm -f /etc/apache2/mods-enabled/mpm_event.load /etc/apache2/mods-enabled/mpm_worker.load \
+    && ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
+    && ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
 
 # Enable mod_rewrite
 RUN a2enmod rewrite
