@@ -18,7 +18,7 @@ $stmt->execute([$from, $to]);
 $dailySales = $stmt->fetchAll();
 
 // Top selling products
-$stmt = $pdo->prepare("SELECT oi.product_title, SUM(oi.price) as revenue, COUNT(*) as sold FROM order_items oi JOIN orders o ON oi.order_id = o.id WHERE o.status = 'completed' AND DATE(o.created_at) BETWEEN ? AND ? GROUP BY oi.product_id ORDER BY sold DESC LIMIT 10");
+$stmt = $pdo->prepare("SELECT oi.product_title, SUM(oi.price) as revenue, COUNT(*) as sold FROM order_items oi JOIN orders o ON oi.order_id = o.id WHERE o.status = 'completed' AND DATE(o.created_at) BETWEEN ? AND ? GROUP BY oi.product_id, oi.product_title ORDER BY sold DESC LIMIT 10");
 $stmt->execute([$from, $to]);
 $topProducts = $stmt->fetchAll();
 
