@@ -37,28 +37,17 @@ if [ $ATTEMPTS -eq $MAX_ATTEMPTS ]; then
     echo "Continuing anyway..."
 fi
 
-# Drop ALL existing tables to ensure clean schema import
-echo "Dropping ALL existing tables..."
-mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "
-SET FOREIGN_KEY_CHECKS=0;
-SET @tables = NULL;
-SELECT GROUP_CONCAT(table_schema, '.', table_name) INTO @tables
-FROM information_schema.tables
-WHERE table_schema = '$DB_NAME';
-SET @tables = CONCAT('DROP TABLE IF EXISTS ', @tables);
-PREPARE stmt FROM @tables;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-SET FOREIGN_KEY_CHECKS=1;
-" 2>&1
-DROP_RESULT=$?
-echo "Drop tables result: $DROP_RESULT"
+# Check if tables already exist - only import schema if database is empty
+TABLE_COUNT=$(mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '$DB_NAME'" -s -N 2>&1)
 
-# Import database schema
-echo "Importing database schema..."
-mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < /var/www/html/database.sql 2>&1
-IMPORT_RESULT=$?
-echo "Import result: $IMPORT_RESULT"
+if [ "$TABLE_COUNT" -eq 0 ]; then
+    echo "Database is empty. Importing schema..."
+    mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < /var/www/html/database.sql 2>&1
+    IMPORT_RESULT=$?
+    echo "Import result: $IMPORT_RESULT"
+else
+    echo "Database already has $TABLE_COUNT tables. Skipping schema import to preserve data."
+fi
 
 # Verify tables were created
 echo "Verifying tables..."
