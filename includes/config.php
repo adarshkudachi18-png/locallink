@@ -7,7 +7,17 @@ define('DB_NAME', getenv('MYSQL_DATABASE') ?: getenv('DB_NAME') ?: 'railway');
 define('DB_USER', getenv('MYSQLUSER') ?: getenv('DB_USER') ?: 'root');
 define('DB_PASS', getenv('MYSQLPASSWORD') ?: getenv('DB_PASS') ?: '');
 
-define('SITE_URL', getenv('SITE_URL') ?: 'http://localhost');
+// Auto-detect SITE_URL for Railway or use environment variable
+if (getenv('SITE_URL')) {
+    define('SITE_URL', getenv('SITE_URL'));
+} elseif (getenv('RAILWAY_STATIC_URL')) {
+    define('SITE_URL', 'https://' . getenv('RAILWAY_STATIC_URL'));
+} elseif (isset($_SERVER['HTTP_HOST'])) {
+    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+    define('SITE_URL', $protocol . '://' . $_SERVER['HTTP_HOST']);
+} else {
+    define('SITE_URL', 'http://localhost');
+}
 define('SITE_NAME', 'Local Link');
 // Get Brevo API Key from environment variable
 define('BREVO_API_KEY', getenv('BREVO_API_KEY') ?: '');
