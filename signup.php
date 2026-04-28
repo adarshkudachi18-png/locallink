@@ -77,17 +77,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step == 2) {
             $error = 'Invalid verification code.';
         } else {
             // Create user account
-            $stmt = $pdo->prepare("INSERT INTO users (name, email, mobile_number, password, is_verified) VALUES (?, ?, ?, ?, 1)");
-            if ($stmt->execute([$temp['name'], $temp['email'], $temp['mobile'], $temp['password']])) {
-                $userId = $pdo->lastInsertId();
-                $_SESSION['user_id'] = $userId;
-                $_SESSION['user_name'] = $temp['name'];
-                $_SESSION['user_email'] = $temp['email'];
-                unset($_SESSION['temp_signup']);
-                header('Location: ' . SITE_URL . '/');
-                exit;
-            } else {
-                $error = 'Something went wrong. Please try again.';
+            try {
+                $stmt = $pdo->prepare("INSERT INTO users (name, email, mobile_number, password, is_verified) VALUES (?, ?, ?, ?, 1)");
+                if ($stmt->execute([$temp['name'], $temp['email'], $temp['mobile'], $temp['password']])) {
+                    $userId = $pdo->lastInsertId();
+                    $_SESSION['user_id'] = $userId;
+                    $_SESSION['user_name'] = $temp['name'];
+                    $_SESSION['user_email'] = $temp['email'];
+                    unset($_SESSION['temp_signup']);
+                    header('Location: ' . SITE_URL . '/');
+                    exit;
+                } else {
+                    $error = 'Something went wrong. Please try again.';
+                }
+            } catch (PDOException $e) {
+                $error = 'Database error: ' . $e->getMessage();
             }
         }
     }
