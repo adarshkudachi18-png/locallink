@@ -16,6 +16,8 @@ define('PRODUCT_PATH', __DIR__ . '/../assets/img/products/');
 define('SCREENSHOT_PATH', __DIR__ . '/../assets/img/screenshots/');
 define('DOWNLOAD_PATH', __DIR__ . '/../assets/downloads/');
 
+// Railway uses self-signed certificates - disable SSL verification for internal connections
+$isRailway = (strpos(DB_HOST, 'railway.internal') !== false);
 $sslCa = getenv('DB_SSL_CA') ?: __DIR__ . '/../global-bundle.pem';
 $sslMode = getenv('DB_SSL_MODE') ?: 'REQUIRED';
 
@@ -26,8 +28,12 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ];
     
-    // Add SSL if CA file exists
-    if (file_exists($sslCa)) {
+    // Railway uses self-signed certificates internally - disable SSL verification
+    if ($isRailway) {
+        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+        $options[PDO::MYSQL_ATTR_SSL_CA] = false;
+    } else if (file_exists($sslCa)) {
+        // Add SSL if CA file exists for external connections
         $options[PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
         $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = ($sslMode === 'VERIFY_IDENTITY');
     }

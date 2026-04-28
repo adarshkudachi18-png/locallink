@@ -10,9 +10,9 @@ echo "Using MySQL host: $DB_HOST"
 echo "Using database: $DB_NAME"
 echo "Using user: $DB_USER"
 
-# Test connection with visible errors
+# Test connection with visible errors (disable SSL verification for Railway)
 echo "Testing MySQL connection..."
-mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "SELECT 1" 2>&1
+mysql --ssl-mode=DISABLED -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "SELECT 1" 2>&1
 CONNECTION_RESULT=$?
 
 # Wait for MySQL to be ready
@@ -21,7 +21,7 @@ ATTEMPTS=0
 MAX_ATTEMPTS=30
 
 while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
-    if mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "SELECT 1" > /dev/null 2>&1; then
+    if mysql --ssl-mode=DISABLED -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "SELECT 1" > /dev/null 2>&1; then
         echo "MySQL is ready!"
         break
     fi
@@ -33,15 +33,15 @@ done
 if [ $ATTEMPTS -eq $MAX_ATTEMPTS ]; then
     echo "ERROR: Could not connect to MySQL after $MAX_ATTEMPTS attempts"
     echo "Trying to show last error:"
-    mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "SELECT 1" 2>&1
+    mysql --ssl-mode=DISABLED -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "SELECT 1" 2>&1
     echo "Continuing anyway..."
 fi
 
-# Check if database schema already exists
-if mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SHOW TABLES" | grep -q "users"; then
+# Check if database schema already exists (disable SSL for import)
+if mysql --ssl-mode=DISABLED -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SHOW TABLES" | grep -q "users"; then
     echo "Database schema already exists. Skipping import."
 else
     echo "Importing database schema..."
-    mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < /var/www/html/database.sql
+    mysql --ssl-mode=DISABLED -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < /var/www/html/database.sql
     echo "Database schema imported successfully!"
 fi
