@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['razorpay_payment_id']
             exit;
         } catch (Exception $e) {
             $pdo->rollBack();
-            $error = 'Order completion failed. Please contact support.';
+            $error = 'Order completion failed: ' . $e->getMessage();
         }
     } else {
         $error = 'Payment verification failed. Please try again.';
