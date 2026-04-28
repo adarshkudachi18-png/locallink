@@ -45,3 +45,7 @@ else
     mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < /var/www/html/database.sql
     echo "Database schema imported successfully!"
 fi
+
+# Start the web server (apache2-foreground)
+echo "Starting web server..."
+exec "$@"
