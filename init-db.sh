@@ -40,10 +40,18 @@ fi
 # Drop existing tables to ensure clean schema import
 echo "Dropping existing tables..."
 mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SET FOREIGN_KEY_CHECKS=0; DROP TABLE IF EXISTS orders, order_items, cart, products, categories, admins, users, testimonials, tickets, messages, faqs, settings; SET FOREIGN_KEY_CHECKS=1;" 2>&1
+DROP_RESULT=$?
+echo "Drop tables result: $DROP_RESULT"
 
 # Import database schema
 echo "Importing database schema..."
 mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < /var/www/html/database.sql 2>&1
+IMPORT_RESULT=$?
+echo "Import result: $IMPORT_RESULT"
+
+# Verify tables were created
+echo "Verifying tables..."
+mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SHOW TABLES;" 2>&1
 echo "Database schema import completed!"
 
 # Start the web server (apache2-foreground)
