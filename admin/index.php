@@ -30,7 +30,7 @@ $stmt = $pdo->query("SELECT p.title, p.downloads, p.price FROM products p WHERE 
 $topProducts = $stmt->fetchAll();
 
 // Monthly revenue (last 6 months)
-$stmt = $pdo->query("SELECT DATE_FORMAT(created_at, '%b %Y') as month, SUM(total) as revenue FROM orders WHERE status = 'completed' AND created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY DATE_FORMAT(created_at, '%b %Y') ORDER BY created_at");
+$stmt = $pdo->query("SELECT DATE_FORMAT(created_at, '%b %Y') as month, SUM(total) as revenue FROM orders WHERE status = 'completed' AND created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY DATE_FORMAT(created_at, '%b %Y'), YEAR(created_at), MONTH(created_at) ORDER BY YEAR(created_at), MONTH(created_at)");
 $monthlyRevenue = $stmt->fetchAll();
 
 $pageTitle = 'Dashboard';
