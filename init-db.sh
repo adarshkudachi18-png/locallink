@@ -37,9 +37,20 @@ if [ $ATTEMPTS -eq $MAX_ATTEMPTS ]; then
     echo "Continuing anyway..."
 fi
 
-# Drop existing tables to ensure clean schema import
-echo "Dropping existing tables..."
-mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SET FOREIGN_KEY_CHECKS=0; DROP TABLE IF EXISTS orders, order_items, cart, products, categories, admins, users, testimonials, tickets, messages, faqs, settings; SET FOREIGN_KEY_CHECKS=1;" 2>&1
+# Drop ALL existing tables to ensure clean schema import
+echo "Dropping ALL existing tables..."
+mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "
+SET FOREIGN_KEY_CHECKS=0;
+SET @tables = NULL;
+SELECT GROUP_CONCAT(table_schema, '.', table_name) INTO @tables
+FROM information_schema.tables
+WHERE table_schema = '$DB_NAME';
+SET @tables = CONCAT('DROP TABLE IF EXISTS ', @tables);
+PREPARE stmt FROM @tables;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+SET FOREIGN_KEY_CHECKS=1;
+" 2>&1
 DROP_RESULT=$?
 echo "Drop tables result: $DROP_RESULT"
 
