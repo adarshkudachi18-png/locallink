@@ -136,7 +136,7 @@ function generateOTP($length = 6) {
 // Helper Functions
 function getSetting($key, $default = '') {
     global $pdo;
-    $stmt = $pdo->prepare("SELECT value FROM settings WHERE `key` = ?");
+    $stmt = $pdo->prepare("SELECT setting_value FROM settings WHERE setting_key = ?");
     $stmt->execute([$key]);
     $result = $stmt->fetchColumn();
     return $result !== false ? $result : $default;
