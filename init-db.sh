@@ -10,6 +10,12 @@ echo "Using MySQL host: $DB_HOST"
 echo "Using database: $DB_NAME"
 echo "Using user: $DB_USER"
 
+# Create image directories (for Railway volume compatibility)
+echo "Creating image directories..."
+mkdir -p /var/www/html/assets/img/products /var/www/html/assets/img/uploads /var/www/html/assets/img/screenshots
+chmod -R 777 /var/www/html/assets/img
+ls -la /var/www/html/assets/img/
+
 # Test connection with visible errors (disable SSL for Railway)
 echo "Testing MySQL connection..."
 mysql --ssl=0 -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "SELECT 1" 2>&1

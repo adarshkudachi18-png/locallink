@@ -12,12 +12,12 @@ COPY . /var/www/html/
 # Make init script executable
 RUN chmod +x /var/www/html/init-db.sh
 
-# Create required directories
-RUN mkdir -p /var/www/html/assets/downloads /var/www/html/assets/img/products /var/www/html/assets/img/uploads /var/www/html/assets/img/screenshots
+# Create downloads directory (images will be created by init script for volume compatibility)
+RUN mkdir -p /var/www/html/assets/downloads
 
 # Set permissions
 RUN chmod -R 755 /var/www/html/
-RUN chmod -R 777 /var/www/html/assets/downloads /var/www/html/assets/img/products /var/www/html/assets/img/uploads /var/www/html/assets/img/screenshots
+RUN chmod -R 777 /var/www/html/assets/downloads
 
 # Expose port 80
 EXPOSE 80
