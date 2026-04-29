@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['razorpay_payment_id']
             $stmt->execute([$orderId]);
             $orderNumber = $stmt->fetchColumn();
             
-            header('Location: ' . SITE_URL . '/orders.php?order=' . $orderNumber);
+            header('Location: ' . SITE_URL . '/order-success.php?order=' . $orderNumber);
             exit;
         } catch (Exception $e) {
             $pdo->rollBack();
