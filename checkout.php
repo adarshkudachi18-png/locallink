@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['razorpay_payment_id']
         try {
             $pdo->beginTransaction();
             
-            $stmt = $pdo->prepare("UPDATE orders SET payment_status = 'completed', status = 'completed', transaction_id = ?, delivery_status = 'processing' WHERE id = ? AND user_id = ?");
+            $stmt = $pdo->prepare("UPDATE orders SET payment_status = 'completed', status = 'completed', transaction_id = ?, delivery_status = 'shipped' WHERE id = ? AND user_id = ?");
             $stmt->execute([$razorpayPaymentId, $orderId, $_SESSION['user_id']]);
             
             $stmt = $pdo->prepare("SELECT product_id FROM order_items WHERE order_id = ?");

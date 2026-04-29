@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'])) {
     
     // Update delivery status
     $newDeliveryStatus = $_POST['delivery_status'] ?? '';
-    if (in_array($newDeliveryStatus, ['pending','processing','shipped','delivered','cancelled'])) {
+    if (in_array($newDeliveryStatus, ['pending','shipped','delivered','cancelled'])) {
         $stmt = $pdo->prepare("UPDATE orders SET delivery_status = ? WHERE id = ?");
         $stmt->execute([$newDeliveryStatus, $orderId]);
         $success = 'Delivery status updated.';
@@ -132,7 +132,6 @@ include 'includes/header.php';
                         <input type="hidden" name="order_id" value="<?= $o['id'] ?>">
                         <select name="delivery_status" class="form-select form-select-sm" style="width:auto;font-size:0.8rem;" onchange="this.form.submit()">
                             <option value="pending" <?= $o['delivery_status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
-                            <option value="processing" <?= $o['delivery_status'] === 'processing' ? 'selected' : '' ?>>Processing</option>
                             <option value="shipped" <?= $o['delivery_status'] === 'shipped' ? 'selected' : '' ?>>Shipped</option>
                             <option value="delivered" <?= $o['delivery_status'] === 'delivered' ? 'selected' : '' ?>>Delivered</option>
                             <option value="cancelled" <?= $o['delivery_status'] === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
